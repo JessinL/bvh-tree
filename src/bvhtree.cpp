@@ -189,7 +189,64 @@ int bvhTree_::dividenode(bvhNode_* node, const int& divideaxis){
     return 0;
 }
 
-int bvhTree_::rayobjectintersectionfinder(const Vector& raystartingpoint, const Vector& raydirection){
+int bvhTree_::rayboxintersectionfinder(
+    const Vector& raystartingpoint, const Vector& raydirection,
+    const Vector& boxminxyz, const Vector& boxmaxxyz
+) const{
+    double tminx = (boxminxyz.x - raystartingpoint.x)/raydirection.x;
+    double tmaxx = (boxmaxxyz.x - raystartingpoint.x)/raydirection.x;
+    double tminy = (boxminxyz.y - raystartingpoint.y)/raydirection.y;
+    double tmaxy = (boxmaxxyz.y - raystartingpoint.y)/raydirection.y;
+    double tminz = (boxminxyz.z - raystartingpoint.z)/raydirection.z;
+    double tmaxz = (boxmaxxyz.z - raystartingpoint.z)/raydirection.z;
+
+    double tmin = std::max(tminx, tminy);
+    tmin = std::max(tmin, tminz);
+    double tmax = std::min(tmaxx, tmaxy);
+    tmax = std::min(tmax, tmaxz);
+
+    if(tmax > 0 && tmax > tmin){
+        return 1;
+    }
+    return 0;
+}
+
+int bvhTree_::raynodeintersectionfinder(
+    const Vector& raystartingpoint, const Vector& raydirection,
+    bvhNode_* node,
+    std::vector<int>& possibleintersectionfacets
+) const{
+    Vector boxminxyz = node->getminxyz();
+    Vector boxmaxxyz = node->getmaxxyz();
+
+    // 对当前节点包围盒进行相交检测
+    if(rayboxintersectionfinder(raystartingpoint, raydirection, boxminxyz, boxmaxxyz)){
+        // 若有相交，则判断当前节点是否为叶节点
+        if(node->isleaf()){
+            // 若为叶节点，将当前节点中的所有三角面片插入返回值
+            std::vector<int> possiblefacets = node->getfacetids();
+            for(int fid = 0; fid < possiblefacets.size(); fid++){
+                possibleintersectionfacets.push_back(possiblefacets[fid]);
+            }
+        }
+        else{
+            // 若为内部节点，则递归地对其孩子节点进行相交检测
+            bvhNode_* lnode = node->getleftchild();
+            bvhNode_* rnode = node->getrightchild();
+            raynodeintersectionfinder(raystartingpoint, raydirection, lnode, possibleintersectionfacets);
+            raynodeintersectionfinder(raystartingpoint, raydirection, rnode, possibleintersectionfacets);
+        }
+    }
+    return 0;
+}
+
+int bvhTree_::rayobjectintersectionfinder(
+    const Vector& raystartingpoint, const Vector& raydirection,
+    std::vector<int>& possibleintersectionfacets
+) const{
     bvhNode_* node = root_;
+
+    raynodeintersectionfinder(raystartingpoint, raydirection, node, possibleintersectionfacets);
+
     return 0;
 }
