@@ -8,16 +8,18 @@ class bvhNode_{
 public:
     bvhNode_() {}
     ~bvhNode_() {}
-    inline bvhNode_(const bvhNode_& bvhNode);
+    bvhNode_(const bvhNode_& bvhNode);
 
-    inline int setminxyz(const Vector& minxyz);
-    inline int setmaxxyz(const Vector& maxxyz);
+    int setminxyz(const Vector& minxyz);
+    int setmaxxyz(const Vector& maxxyz);
 
-    inline int setleaf();
-    inline int setinternal();
+    int setleaf();
+    int setinternal();
 
-    inline int setleftchild(bvhNode_* child);
-    inline int setrightchild(bvhNode_* child);
+    int setleftchild(bvhNode_* child);
+    int setrightchild(bvhNode_* child);
+
+    int setdepth(const int& depth);
 
     /**
      * @brief set some facets to a leaf node
@@ -26,28 +28,26 @@ public:
      * @param facetids 
      * @return int 
      */
-    inline int setfacets(const std::vector<int>& facetids);
+    int setfacets(const std::vector<int>& facetids);
 
-    inline Vector getminxyz() const;
-    inline Vector getmaxxyz() const;
+    Vector getminxyz();
+    Vector getmaxxyz();
     
-    inline bool isleaf() const;
-    inline bool isinternal() const;
+    bool isleaf();
+    bool isinternal();
 
-    inline bvhNode_* getleftchild() const;
-    inline bvhNode_* getrightchild() const;
+    bvhNode_* getleftchild();
+    bvhNode_* getrightchild();
 
-    inline std::vector<int> getfacetids() const;
+    int getdepth();
 
-    inline int divide(
+    std::vector<int> getfacetids();
+
+    int divide(
         const int& divideaxis, 
         const Vector& leftminxyz, const Vector& leftmaxxyz,
         const Vector& rightminxyz, const Vector& rightmaxxyz,
         const std::vector<int>& leftfacetids, const std::vector<int>& rightfacetids
-    );
-
-    inline int raynodeintersectionfinder(
-        const Vector& raystartingpoint, const Vector& raydirection
     );
 
 private:
@@ -59,6 +59,7 @@ private:
     bvhNode_* leftchild_{nullptr};
     bvhNode_* rightchild_{nullptr};
     int divideaxis_{-1};
+    int depth_{-1};
 
     // for leaf nodes
     std::vector<int> facetids_;

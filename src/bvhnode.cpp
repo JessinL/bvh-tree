@@ -42,6 +42,11 @@ int bvhNode_::setrightchild(bvhNode_* child){
     return 0;
 }
 
+int bvhNode_::setdepth(const int& depth){
+    depth_ = depth;
+    return 0;
+}
+
 int bvhNode_::setfacets(const std::vector<int>& facetids){
     if(!isleaf_)
         return 1;
@@ -49,31 +54,35 @@ int bvhNode_::setfacets(const std::vector<int>& facetids){
     return 0;
 }
 
-Vector bvhNode_::getminxyz() const{
+Vector bvhNode_::getminxyz(){
     return aabbminxyz_;
 }
 
-Vector bvhNode_::getmaxxyz() const{
+Vector bvhNode_::getmaxxyz(){
     return aabbmaxxyz_;
 }
 
-bool bvhNode_::isleaf() const{
+bool bvhNode_::isleaf(){
     return isleaf_;
 }
 
-bool bvhNode_::isinternal() const{
+bool bvhNode_::isinternal(){
     return !isleaf_;
 }
 
-bvhNode_* bvhNode_::getleftchild() const{
+int bvhNode_::getdepth(){
+    return depth_;
+}
+
+bvhNode_* bvhNode_::getleftchild(){
     return leftchild_;
 }
 
-bvhNode_* bvhNode_::getrightchild() const{
+bvhNode_* bvhNode_::getrightchild(){
     return rightchild_;
 }
 
-std::vector<int> bvhNode_::getfacetids() const{
+std::vector<int> bvhNode_::getfacetids(){
     return facetids_;
 }
 
@@ -94,11 +103,13 @@ int bvhNode_::divide(
     leftchild->setmaxxyz(leftmaxxyz);
     leftchild->setminxyz(leftminxyz);
     leftchild->setfacets(leftfacetids);
+    leftchild->setdepth(getdepth() + 1);
 
     bvhNode_* rightchild = new bvhNode_();
     rightchild->setmaxxyz(rightmaxxyz);
     rightchild->setminxyz(rightminxyz);
     rightchild->setfacets(rightfacetids);
+    rightchild->setdepth(getdepth() + 1);
 
     setleftchild(leftchild);
     setrightchild(rightchild);
@@ -106,6 +117,3 @@ int bvhNode_::divide(
     return 0;
 }
 
-int bvhNode_::raynodeintersectionfinder(const Vector& raystartingpoint, const Vector& raydirection){
-    
-}
